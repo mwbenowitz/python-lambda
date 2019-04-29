@@ -523,6 +523,15 @@ def create_function(cfg, path_to_zip_file, use_s3=False, s3_file=None):
     )
     print('Creating lambda function with name: {}'.format(func_name))
 
+    # Handle string or list for subnet_ids and security_group_ids
+    subnet_ids = cfg.get('subnet_ids', [])
+    if type(subnet_ids) is str:
+        subnet_ids = subnet_ids.split(',')
+    
+    security_group_ids = cfg.get('security_group_ids', [])
+    if type(security_group_ids) is str:
+        security_group_ids = security_group_ids.split(',')
+
     if use_s3:
         kwargs = {
             'FunctionName': func_name,
@@ -537,8 +546,8 @@ def create_function(cfg, path_to_zip_file, use_s3=False, s3_file=None):
             'Timeout': cfg.get('timeout', 15),
             'MemorySize': cfg.get('memory_size', 512),
             'VpcConfig': {
-                'SubnetIds': cfg.get('subnet_ids', []),
-                'SecurityGroupIds': cfg.get('security_group_ids', []),
+                'SubnetIds': subnet_ids,
+                'SecurityGroupIds': security_group_ids,
             },
             'Publish': True,
         }
@@ -553,8 +562,8 @@ def create_function(cfg, path_to_zip_file, use_s3=False, s3_file=None):
             'Timeout': cfg.get('timeout', 15),
             'MemorySize': cfg.get('memory_size', 512),
             'VpcConfig': {
-                'SubnetIds': cfg.get('subnet_ids', []),
-                'SecurityGroupIds': cfg.get('security_group_ids', []),
+                'SubnetIds': subnet_ids,
+                'SecurityGroupIds': security_group_ids,
             },
             'Publish': True,
         }
@@ -640,19 +649,28 @@ def update_function(
         'MemorySize': cfg.get('memory_size', 512),
     }
 
+    # Handle string or list for subnet_ids and security_group_ids
+    subnet_ids = cfg.get('subnet_ids', [])
+    if type(subnet_ids) is str:
+        subnet_ids = subnet_ids.split(',')
+    
+    security_group_ids = cfg.get('security_group_ids', [])
+    if type(security_group_ids) is str:
+        security_group_ids = security_group_ids.split(',')
+
     if preserve_vpc:
         kwargs['VpcConfig'] = existing_cfg.get('Configuration', {}).get('VpcConfig')
         if kwargs['VpcConfig'] is None:
             kwargs['VpcConfig'] = {
-                'SubnetIds': cfg.get('subnet_ids', []),
-                'SecurityGroupIds': cfg.get('security_group_ids', []),
+                'SubnetIds': subnet_ids,
+                'SecurityGroupIds': security_group_ids,
             }
         else:
             del kwargs['VpcConfig']['VpcId']
     else:
         kwargs['VpcConfig'] = {
-            'SubnetIds': cfg.get('subnet_ids', []),
-            'SecurityGroupIds': cfg.get('security_group_ids', []),
+            'SubnetIds': subnet_ids,
+            'SecurityGroupIds': security_group_ids,
         }
 
     if 'environment_variables' in cfg:
