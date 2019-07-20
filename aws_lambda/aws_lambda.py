@@ -5,6 +5,7 @@ import hashlib
 import json
 import logging
 import os
+import re
 import sys
 import time
 from collections import defaultdict
@@ -526,11 +527,11 @@ def create_function(cfg, path_to_zip_file, use_s3=False, s3_file=None):
     # Handle string or list for subnet_ids and security_group_ids
     subnet_ids = cfg.get('subnet_ids', [])
     if type(subnet_ids) is str:
-        subnet_ids = subnet_ids.split(',')
-    
+        subnet_ids = re.split(r',\s*', subnet_ids)
+
     security_group_ids = cfg.get('security_group_ids', [])
     if type(security_group_ids) is str:
-        security_group_ids = security_group_ids.split(',')
+        security_group_ids = re.split(r',\s*', security_group_ids)
 
     if use_s3:
         kwargs = {
